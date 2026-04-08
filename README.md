@@ -133,8 +133,7 @@ DB_USER=root
 DB_PASSWORD=yourpassword
 DB_HOST=localhost
 DB_PORT=3306
-ANTHROPIC_API_KEY=sk-ant-...
-```
+your-api-key-here```
 
 ---
 
