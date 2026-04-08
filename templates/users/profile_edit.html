@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+{% block title %}Edit Profile — LocalServe{% endblock %}
+
+{% block content %}
+<div class="container section" style="max-width:640px">
+  <div style="margin-bottom:28px">
+    <h1 style="font-family:var(--font-head);font-size:1.8rem;font-weight:800;letter-spacing:-0.5px">Edit Profile</h1>
+    <p style="color:var(--text-muted);margin-top:6px">Update your personal information and preferences.</p>
+  </div>
+
+  <div class="card" style="padding:32px">
+    <form method="post" enctype="multipart/form-data">
+      {% csrf_token %}
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+        <div class="form-group">
+          <label class="form-label">First Name</label>
+          {{ form.first_name }}
+          {% if form.first_name.errors %}<div class="form-error">{{ form.first_name.errors.0 }}</div>{% endif %}
+        </div>
+        <div class="form-group">
+          <label class="form-label">Last Name</label>
+          {{ form.last_name }}
+          {% if form.last_name.errors %}<div class="form-error">{{ form.last_name.errors.0 }}</div>{% endif %}
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Email</label>
+        {{ form.email }}
+        {% if form.email.errors %}<div class="form-error">{{ form.email.errors.0 }}</div>{% endif %}
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+        <div class="form-group">
+          <label class="form-label">Phone</label>
+          {{ form.phone }}
+        </div>
+        <div class="form-group">
+          <label class="form-label">City</label>
+          {{ form.city }}
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+        <div class="form-group">
+          <label class="form-label">State</label>
+          {{ form.state }}
+        </div>
+        <div class="form-group">
+          <label class="form-label">Full Address</label>
+          {{ form.location }}
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Bio</label>
+        {{ form.bio }}
+        <div class="form-help">Tell customers about yourself and your experience.</div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Profile Photo</label>
+        {% if request.user.avatar %}
+          <div style="margin-bottom:10px">
+            <img src="{{ request.user.avatar.url }}" style="width:64px;height:64px;border-radius:50%;object-fit:cover;border:2px solid var(--accent)" />
+          </div>
+        {% endif %}
+        {{ form.avatar }}
+      </div>
+
+      <div style="display:flex;gap:12px;margin-top:8px">
+        <button type="submit" class="btn btn--primary">Save Changes</button>
+        <a href="{% url 'users:profile' %}" class="btn btn--outline">Cancel</a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

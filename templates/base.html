@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{% block title %}LocalServe — Find Local Services{% endblock %}</title>
+  <meta name="description" content="{% block meta_desc %}Find trusted local service providers near you.{% endblock %}" />
+  {% load static %}
+  <link rel="stylesheet" href="{% static 'css/main.css' %}" />
+  {% block extra_css %}{% endblock %}
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%233b82f6'/><text y='24' x='4' font-size='22'>🔧</text></svg>" />
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar">
+  <a href="{% url 'home' %}" class="navbar__brand">
+    <span class="navbar__brand-icon">🔧</span>
+    Local<span>Serve</span>
+  </a>
+
+  <div class="navbar__nav">
+    <a href="{% url 'home' %}" {% if request.resolver_match.url_name == 'home' %}class="active"{% endif %}>Home</a>
+    <a href="{% url 'services:service_list' %}" {% if 'service' in request.path %}class="active"{% endif %}>Services</a>
+    <a href="{% url 'search' %}" {% if 'search' in request.path %}class="active"{% endif %}>Search</a>
+    <a href="{% url 'ai_recommend' %}">AI Picks</a>
+    {% if user.is_authenticated and user.is_provider %}
+      <a href="{% url 'services:provider_dashboard' %}" {% if 'dashboard' in request.path %}class="active"{% endif %}>Dashboard</a>
+    {% endif %}
+    {% if user.is_authenticated and user.is_admin_user %}
+      <a href="{% url 'adminpanel:dashboard' %}" {% if 'adminpanel' in request.path %}class="active"{% endif %}>Admin</a>
+    {% endif %}
+  </div>
+
+  <div class="navbar__actions">
+    {% if user.is_authenticated %}
+      <a href="{% url 'users:profile' %}" class="btn btn--outline btn--sm">
+        👤 {{ user.username }}
+      </a>
+      <form method="post" action="{% url 'users:logout' %}" style="display:inline">
+        {% csrf_token %}
+        <button type="submit" class="btn btn--outline btn--sm">Logout</button>
+      </form>
+    {% else %}
+      <a href="{% url 'users:login' %}" class="btn btn--outline btn--sm">Sign In</a>
+      <a href="{% url 'users:register' %}" class="btn btn--primary btn--sm">Get Started</a>
+    {% endif %}
+  </div>
+</nav>
+
+<!-- MESSAGES -->
+{% if messages %}
+<div class="container messages-list" style="padding-top:12px">
+  {% for message in messages %}
+    <div class="message message--{{ message.tags|default:'info' }}">
+      {% if message.tags == 'success' %}✅{% elif message.tags == 'error' %}❌{% elif message.tags == 'warning' %}⚠️{% else %}ℹ️{% endif %}
+      {{ message }}
+    </div>
+  {% endfor %}
+</div>
+{% endif %}
+
+<!-- CONTENT -->
+{% block content %}{% endblock %}
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div>
+        <div class="footer-brand">Local<span>Serve</span></div>
+        <p class="footer-desc">Connecting customers with trusted local service providers. Find electricians, plumbers, tutors, and more near you.</p>
+      </div>
+      <div>
+        <div class="footer-col-title">Services</div>
+        <div class="footer-links">
+          <a href="{% url 'services:service_list' %}">Browse All</a>
+          <a href="{% url 'search' %}">Search</a>
+          <a href="{% url 'ai_recommend' %}">AI Recommendations</a>
+        </div>
+      </div>
+      <div>
+        <div class="footer-col-title">Account</div>
+        <div class="footer-links">
+          {% if user.is_authenticated %}
+            <a href="{% url 'users:profile' %}">My Profile</a>
+            {% if user.is_provider %}<a href="{% url 'services:provider_dashboard' %}">Dashboard</a>{% endif %}
+          {% else %}
+            <a href="{% url 'users:login' %}">Sign In</a>
+            <a href="{% url 'users:register' %}">Register</a>
+          {% endif %}
+        </div>
+      </div>
+      <div>
+        <div class="footer-col-title">Providers</div>
+        <div class="footer-links">
+          <a href="{% url 'users:register' %}">List Your Service</a>
+          <a href="{% url 'services:service_create' %}">Add Service</a>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2025 LocalServe. Built with Django + Claude AI.</span>
+      <span>Made with ❤️ for local communities</span>
+    </div>
+  </div>
+</footer>
+
+<script src="{% static 'js/main.js' %}"></script>
+<script src="{% static 'js/auth.js' %}"></script>
+{% block extra_js %}{% endblock %}
+</body>
+</html>

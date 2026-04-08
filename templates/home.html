@@ -1,0 +1,175 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}LocalServe — Find Trusted Local Services{% endblock %}
+
+{% block content %}
+
+<!-- HERO -->
+<section class="hero">
+  <div class="container">
+    <div class="hero__badge">✨ AI-Powered Service Discovery</div>
+    <h1 class="hero__title">
+      Find <em>Trusted</em> Local<br>Services Near You
+    </h1>
+    <p class="hero__sub">
+      Connect with verified professionals for home repair, tutoring, wellness, and more. Powered by Claude AI.
+    </p>
+
+    <form method="get" action="{% url 'search' %}">
+      <div class="search-bar">
+        <input type="text" name="q" placeholder="What service do you need?" autocomplete="off" />
+        <div class="search-bar__divider"></div>
+        <select name="category">
+          <option value="">All Categories</option>
+          {% for cat in categories %}
+            <option value="{{ cat.slug }}">{{ cat.icon }} {{ cat.name }}</option>
+          {% endfor %}
+        </select>
+        <button type="submit" class="btn btn--primary">Search</button>
+      </div>
+    </form>
+
+    <p style="margin-top:16px;font-size:0.8rem;color:var(--text-muted)">
+      Popular: Electrician · Plumber · Tutor · Driver · Carpenter · Cleaning
+    </p>
+  </div>
+</section>
+
+<!-- STATS -->
+<div class="container">
+  <div class="stats-strip">
+    <div class="stat-item">
+      <span class="stat-item__num" data-count="{{ stats.providers }}">0</span>
+      <span class="stat-item__label">Verified Providers</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-item__num" data-count="{{ stats.services }}">0</span>
+      <span class="stat-item__label">Active Services</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-item__num" data-count="{{ stats.categories }}">0</span>
+      <span class="stat-item__label">Categories</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-item__num" data-count="{{ stats.reviews }}">0</span>
+      <span class="stat-item__label">Reviews</span>
+    </div>
+  </div>
+</div>
+
+<!-- CATEGORIES -->
+<section class="section">
+  <div class="container">
+    <div class="section__header">
+      <h2 class="section__title">Browse <span>Categories</span></h2>
+    </div>
+    <div class="cat-grid">
+      {% for cat in categories %}
+        <a href="{% url 'services:service_list' %}?category={{ cat.slug }}" class="cat-card">
+          <div class="cat-card__icon">{{ cat.icon }}</div>
+          <div class="cat-card__name">{{ cat.name }}</div>
+          <div class="cat-card__count">{{ cat.count }} services</div>
+        </a>
+      {% empty %}
+        <p class="text-muted">No categories yet.</p>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<!-- FEATURED SERVICES -->
+{% if featured %}
+<section class="section" style="padding-top:0">
+  <div class="container">
+    <div class="section__header">
+      <h2 class="section__title">⭐ <span>Featured</span> Services</h2>
+      <a href="{% url 'services:service_list' %}" class="btn btn--outline btn--sm">View All →</a>
+    </div>
+    <div class="grid grid--3">
+      {% for service in featured %}
+        <a href="{% url 'services:service_detail' service.slug %}" class="card" style="display:block;text-decoration:none">
+          <div class="card__image">
+            {% if service.image %}
+              <img src="{{ service.image.url }}" alt="{{ service.title }}" loading="lazy" />
+            {% else %}
+              <div class="card__image-placeholder">{{ service.category.icon|default:'🔧' }}</div>
+            {% endif %}
+            <span class="card__badge card__badge--gold">⭐ Featured</span>
+          </div>
+          <div class="card__body">
+            <div class="card__category">{{ service.category.name }}</div>
+            <div class="card__title">{{ service.title }}</div>
+            <div class="card__desc">{{ service.description|truncatechars:90 }}</div>
+            <div class="card__meta">
+              <div>
+                <div class="card__price">
+                  ₹{{ service.price }} <span class="card__price-type">/ {{ service.get_price_type_display }}</span>
+                </div>
+                {% if service.avg_rating %}
+                  <div class="stars" style="margin-top:4px">
+                    {% for i in "12345" %}
+                      <span class="star {% if forloop.counter > service.avg_rating %}star--empty{% endif %}">★</span>
+                    {% endfor %}
+                    <span class="rating-count">({{ service.review_count }})</span>
+                  </div>
+                {% endif %}
+              </div>
+              <div class="card__location">{{ service.city }}</div>
+            </div>
+          </div>
+        </a>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endif %}
+
+<!-- RECENT SERVICES -->
+<section class="section" style="padding-top:0">
+  <div class="container">
+    <div class="section__header">
+      <h2 class="section__title">🆕 Recently <span>Added</span></h2>
+      <a href="{% url 'search' %}" class="btn btn--outline btn--sm">Search All →</a>
+    </div>
+    <div class="grid grid--4">
+      {% for service in recent %}
+        <a href="{% url 'services:service_detail' service.slug %}" class="card" style="display:block;text-decoration:none">
+          <div class="card__image">
+            {% if service.image %}
+              <img src="{{ service.image.url }}" alt="{{ service.title }}" loading="lazy" />
+            {% else %}
+              <div class="card__image-placeholder">{{ service.category.icon|default:'🔧' }}</div>
+            {% endif %}
+          </div>
+          <div class="card__body">
+            <div class="card__category">{{ service.category.name }}</div>
+            <div class="card__title">{{ service.title }}</div>
+            <div class="card__meta">
+              <span class="card__price">₹{{ service.price }}</span>
+              <span class="card__location">{{ service.city }}</span>
+            </div>
+          </div>
+        </a>
+      {% empty %}
+        <p class="text-muted">No services yet. <a href="{% url 'users:register' %}">Be the first to list!</a></p>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<!-- AI CTA -->
+<section class="section--sm" style="padding-bottom:80px">
+  <div class="container">
+    <div style="background:linear-gradient(135deg,rgba(59,130,246,0.1) 0%,rgba(139,92,246,0.1) 100%);border:1px solid rgba(59,130,246,0.2);border-radius:var(--radius-xl);padding:48px;text-align:center">
+      <div style="font-size:2.5rem;margin-bottom:12px">🤖</div>
+      <h2 class="section__title" style="margin-bottom:12px">Not sure what you need?</h2>
+      <p style="color:var(--text-secondary);margin-bottom:28px;max-width:480px;margin-left:auto;margin-right:auto">
+        Describe your problem and our Claude AI will recommend the best local services for you.
+      </p>
+      <a href="{% url 'ai_recommend' %}" class="btn btn--primary btn--lg">Try AI Recommendations →</a>
+    </div>
+  </div>
+</section>
+
+{% endblock %}
